@@ -2,7 +2,6 @@ package com.example.reactortest.Controller;
 
 import com.example.reactortest.Model.Product;
 import com.example.reactortest.Repository.ProductRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +42,13 @@ public class ProductController {
                         }
                 )
                 .map( updatedProduct -> ResponseEntity.ok(updatedProduct))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("{id}")
+    public Mono<ResponseEntity<Void>> deleteProduct(@PathVariable String id){
+        return productRepository.findById(id)
+                .flatMap( existingProduct -> productRepository.save(existingProduct).then(Mono.just(ResponseEntity.ok().<Void>build())))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }
