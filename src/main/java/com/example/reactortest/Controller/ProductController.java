@@ -1,14 +1,19 @@
 package com.example.reactortest.Controller;
 
 import com.example.reactortest.Model.Product;
+import com.example.reactortest.Model.ProductEvent;
 import com.example.reactortest.Repository.ProductRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@RestController
+import java.time.Duration;
+
+@RestController()
+@RequestMapping(value = "/products")
 public class ProductController {
 
     private ProductRepository productRepository;
@@ -48,7 +53,13 @@ public class ProductController {
     @DeleteMapping("{id}")
     public Mono<ResponseEntity<Void>> deleteProduct(@PathVariable String id){
         return productRepository.findById(id)
-                .flatMap( existingProduct -> productRepository.save(existingProduct).then(Mono.just(ResponseEntity.ok().<Void>build())))
+                .flatMap( existingProduct -> productRepository.delete(existingProduct).then(Mono.just(ResponseEntity.ok().<Void>build())))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ProductEvent> getProductEvent(){
+        return Flux.interval(Duration.ofMillis(400))
+                .map( val -> new ProductEvent(val, "Product Event"));
     }
 }

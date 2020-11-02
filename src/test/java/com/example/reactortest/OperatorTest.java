@@ -33,7 +33,7 @@ public class OperatorTest {
         Flux<Integer> fl1 = Flux.range(1,5)
                 .delayElements(Duration.ofMillis(200));
         Flux<Integer> fl2 = Flux.range(6,5)
-                .delayElements(Duration.ofMillis(400));
+                .delayElements(Duration.ofMillis(100));
         Flux.concat(fl1,fl2)
                 .subscribe(System.out::println);
         Thread.sleep(4000);
